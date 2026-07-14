@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>검색 결과</title>
+  </head>
+  <body>
+    <h1>{{ sido }} {{ sigungu }} 검색 결과 ({{ count }}개)</h1>
+
+    {% if error %}
+    <p style="color: red">오류 발생: {{ error }}</p>
+    {% endif %}
+
+    <a href="/download?sido={{ sido }}&sigungu={{ sigungu }}"
+      >📥 CSV 다운로드</a
+    >
+
+    <table border="1">
+      <tr>
+        <th>주유소명</th>
+        <th>주소</th>
+        <th>브랜드</th>
+        <th>휘발유</th>
+        <th>경유</th>
+        <th>세차장</th>
+        <th>24시간</th>
+        <th>편의점</th>
+        <th>전화번호</th>
+      </tr>
+      {% for s in stations %}
+      <tr>
+        <td>{{ s['주유소명'] }}</td>
+        <td><a href="https://www.google.com/maps/search/?api=1&query={{ s['주소']|urlencode }}" target="_blank">
+        {{ s['주소'] }}</td>
+        <td>{{ s['브랜드'] }}</td>
+        <td>{{ '{:,}'.format(s['휘발유가격']|int) }}</td>
+        <td>{{ '{:,}'.format(s['경유가격']|int) }}</td>
+        <td>{{ s['세차장'] }}</td>
+        <td>{{ s['24시간영업'] }}</td>
+        <td>{{ s['편의점'] }}</td>
+        <td>{{ s['전화번호'] }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <a href="/">← 다시 검색</a>
+  </body>
+</html>

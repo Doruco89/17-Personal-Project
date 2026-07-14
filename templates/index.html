@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>실시간 주유소 가격 검색</title>
+  </head>
+  <body>
+    <h1>⛽ 실시간 주유소 가격 검색</h1>
+    <form action="/search" method="get">
+      <select name="sido" id="sido">
+        <option value="">시/도 선택</option>
+        {% for sido in sido_list %}
+        <option value="{{ sido }}">{{ sido }}</option>
+        {% endfor %}
+      </select>
+
+      <select name="sigungu" id="sigungu">
+        <option value="">시/군/구 선택</option>
+      </select>
+
+      <label><input type="checkbox" name="carwash" /> 세차장만</label>
+      <label><input type="checkbox" name="hour24" /> 24시간만</label>
+      <label><input type="checkbox" name="cvs" /> 편의점만</label>
+      <button type="submit">검색</button>
+    </form>
+
+    <script>
+      document.getElementById("sido").addEventListener("change", function () {
+        const sido = this.value;
+        const sigunguSelect = document.getElementById("sigungu");
+        sigunguSelect.innerHTML = '<option value="">불러오는 중...</option>';
+
+        if (!sido) return;
+
+        fetch(`/api/sigungu?sido=${encodeURIComponent(sido)}`)
+          .then((res) => res.json())
+          .then((data) => {
+            sigunguSelect.innerHTML = '<option value="">시/군/구 선택</option>';
+            data.sigungu_list.forEach((sg) => {
+              const opt = document.createElement("option");
+              opt.value = sg;
+              opt.textContent = sg;
+              sigunguSelect.appendChild(opt);
+            });
+          });
+      });
+    </script>
+  </body>
+</html>
