@@ -24,24 +24,29 @@ def api_sigungu():
 def search():
     sido = request.args.get('sido', '')
     sigungu = request.args.get('sigungu', '')
+    carwash_checked = request.args.get('carwash') == 'on'
+    hour24_checked = request.args.get('hour24') == 'on'
+    cvs_checked = request.args.get('cvs') == 'on'
 
     if not sido or not sigungu:
-        return render_template('results.html', stations=[], count=0, sido=sido, sigungu=sigungu)
+        return render_template('results.html', stations=[], count=0, sido=sido, sigungu=sigungu,
+                                carwash_checked=carwash_checked, hour24_checked=hour24_checked, cvs_checked=cvs_checked)
 
     try:
         stations = scrapper.get_stations(sido, sigungu)
     except Exception as e:
-        return render_template('results.html', stations=[], count=0, error=str(e), sido=sido, sigungu=sigungu)
+        return render_template('results.html', stations=[], count=0, error=str(e), sido=sido, sigungu=sigungu,
+                                carwash_checked=carwash_checked, hour24_checked=hour24_checked, cvs_checked=cvs_checked)
 
-    # 필터 옵션 (체크박스)
-    if request.args.get('carwash') == 'on':
+    if carwash_checked:
         stations = [s for s in stations if s['세차장'] == '가능']
-    if request.args.get('hour24') == 'on':
+    if hour24_checked:
         stations = [s for s in stations if s['24시간영업'] == '가능']
-    if request.args.get('cvs') == 'on':
+    if cvs_checked:
         stations = [s for s in stations if s['편의점'] == '있음']
 
-    return render_template('results.html', stations=stations, count=len(stations), sido=sido, sigungu=sigungu)
+    return render_template('results.html', stations=stations, count=len(stations), sido=sido, sigungu=sigungu,
+                            carwash_checked=carwash_checked, hour24_checked=hour24_checked, cvs_checked=cvs_checked)
 
 @app.route('/download')
 def download():

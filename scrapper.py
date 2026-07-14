@@ -7,6 +7,7 @@ headers = {
     "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
 }
 
+
 def get_sido_list():
     """시/도 목록 (고정값)"""
     return ["서울특별시", "부산광역시", "대구광역시", "인천광역시", "광주광역시",
@@ -34,9 +35,15 @@ def get_stations(sido_nm, sigungu_nm):
     res = requests.post(url, data=data, headers=headers, timeout=10)
     html = res.text
 
-    fields = ['OS_NM', 'RD_ADDR', 'POLL_DIV_NM', 'B027_P', 'D047_P',
+    fields = ['OS_NM', 'RD_ADDR', 'POLL_DIV_NM', 'B027_P', 'D047_P', 'B034_P',
               'CWSH_YN', 'SEL24_YN', 'CVS_YN', 'PHN_NO']
     extracted = {f: re.findall(rf'var {f}\s*=\s*"([^"]*)"', html) for f in fields}
+
+    def price_or_na(value):
+        """99999나 빈 값이면 판매안함으로 표시"""
+        if not value or value == '99999':
+            return '판매안함'
+        return value
 
     count = len(extracted['OS_NM'])
     stations = []
@@ -46,6 +53,7 @@ def get_stations(sido_nm, sigungu_nm):
             '주소': extracted['RD_ADDR'][i],
             '브랜드': extracted['POLL_DIV_NM'][i],
             '휘발유가격': extracted['B027_P'][i],
+            '고급휘발유가격': price_or_na(extracted['B034_P'][i]),
             '경유가격': extracted['D047_P'][i],
             '세차장': '가능' if extracted['CWSH_YN'][i] == 'Y' else '불가',
             '24시간영업': '가능' if extracted['SEL24_YN'][i] == 'Y' else '불가',

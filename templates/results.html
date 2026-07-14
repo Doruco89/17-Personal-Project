@@ -19,9 +19,10 @@
       <tr>
         <th>주유소명</th>
         <th>주소</th>
-        <th>브랜드</th>
-        <th>휘발유</th>
+        <th style="width: 130px">브랜드</th>
         <th>경유</th>
+        <th>휘발유</th>
+        <th>고급휘발유</th>
         <th>세차장</th>
         <th>24시간</th>
         <th>편의점</th>
@@ -30,11 +31,21 @@
       {% for s in stations %}
       <tr>
         <td>{{ s['주유소명'] }}</td>
-        <td><a href="https://www.google.com/maps/search/?api=1&query={{ s['주소']|urlencode }}" target="_blank">
-        {{ s['주소'] }}</td>
+        <td>
+          <a
+            href="https://www.google.com/maps/search/?api=1&query={{ s['주소']|urlencode }}"
+            target="_blank"
+          >
+            {{ s['주소'] }}
+          </a>
+        </td>
         <td>{{ s['브랜드'] }}</td>
-        <td>{{ '{:,}'.format(s['휘발유가격']|int) }}</td>
-        <td>{{ '{:,}'.format(s['경유가격']|int) }}</td>
+        <td>{{ '{:,}'.format(s['경유가격']|int) }}원</td>
+        <td>{{ '{:,}'.format(s['휘발유가격']|int) }}원</td>
+        <td>
+          {{ s['고급휘발유가격'] if s['고급휘발유가격'] == '판매안함' else
+          '{:,}'.format(s['고급휘발유가격']|int) + '원' }}
+        </td>
         <td>{{ s['세차장'] }}</td>
         <td>{{ s['24시간영업'] }}</td>
         <td>{{ s['편의점'] }}</td>
