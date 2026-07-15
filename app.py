@@ -10,7 +10,6 @@ def index():
     sido_list = scrapper.get_sido_list()
     return render_template('index.html', sido_list=sido_list)
 
-# 시/도 선택 시 시/군/구 목록 실시간으로 가져오는 API (JS에서 fetch)
 @app.route('/api/sigungu')
 def api_sigungu():
     sido = request.args.get('sido', '')
@@ -27,16 +26,21 @@ def search():
     carwash_checked = request.args.get('carwash') == 'on'
     hour24_checked = request.args.get('hour24') == 'on'
     cvs_checked = request.args.get('cvs') == 'on'
+    fuel_type = request.args.get('fuel_type', '경유가격')
+
+    any_checked = carwash_checked or hour24_checked or cvs_checked
 
     if not sido or not sigungu:
         return render_template('results.html', stations=[], count=0, sido=sido, sigungu=sigungu,
-                                carwash_checked=carwash_checked, hour24_checked=hour24_checked, cvs_checked=cvs_checked)
+                                carwash_checked=carwash_checked, hour24_checked=hour24_checked,
+                                cvs_checked=cvs_checked, any_checked=any_checked, fuel_type=fuel_type)
 
     try:
         stations = scrapper.get_stations(sido, sigungu)
     except Exception as e:
         return render_template('results.html', stations=[], count=0, error=str(e), sido=sido, sigungu=sigungu,
-                                carwash_checked=carwash_checked, hour24_checked=hour24_checked, cvs_checked=cvs_checked)
+                                carwash_checked=carwash_checked, hour24_checked=hour24_checked,
+                                cvs_checked=cvs_checked, any_checked=any_checked, fuel_type=fuel_type)
 
     if carwash_checked:
         stations = [s for s in stations if s['세차장'] == '가능']
@@ -45,8 +49,17 @@ def search():
     if cvs_checked:
         stations = [s for s in stations if s['편의점'] == '있음']
 
+    def sort_key(s):
+        val = s.get(fuel_type, '')
+        if val == '판매안함' or not val:
+            return float('inf')
+        return int(val)
+
+    stations.sort(key=sort_key)
+
     return render_template('results.html', stations=stations, count=len(stations), sido=sido, sigungu=sigungu,
-                            carwash_checked=carwash_checked, hour24_checked=hour24_checked, cvs_checked=cvs_checked)
+                            carwash_checked=carwash_checked, hour24_checked=hour24_checked,
+                            cvs_checked=cvs_checked, any_checked=any_checked, fuel_type=fuel_type)
 
 @app.route('/download')
 def download():

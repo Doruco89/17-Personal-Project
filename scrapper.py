@@ -22,6 +22,18 @@ def get_sigungu_list(sido_nm):
     result = res.json().get('result', [])
     return [item['SIGUNGU_NM'] for item in result]
 
+BRAND_LOGO_MAP = {
+    'SK에너지': 'https://www.opinet.co.kr/images/user/com/icon_sk2.gif',
+    'GS칼텍스': 'https://www.opinet.co.kr/images/user/com/icon_gs2.gif',
+    'HD현대오일뱅크': 'https://www.opinet.co.kr/images/user/com/icon_hy2.gif',
+    'S-OIL': 'https://www.opinet.co.kr/images/user/com/icon_soil2.gif',
+    '알뜰주유소': 'https://www.opinet.co.kr/images/user/com/icon_rto_new2.gif',
+}
+
+def get_brand_logo(brand_nm):
+    """브랜드명에 해당하는 로고 URL 반환, 없으면 None"""
+    return BRAND_LOGO_MAP.get(brand_nm)
+
 def get_stations(sido_nm, sigungu_nm):
     url = "https://www.opinet.co.kr/searRgSelect.do"
     data = {
@@ -52,6 +64,7 @@ def get_stations(sido_nm, sigungu_nm):
             '주유소명': extracted['OS_NM'][i],
             '주소': extracted['RD_ADDR'][i],
             '브랜드': extracted['POLL_DIV_NM'][i],
+            '브랜드로고': get_brand_logo(extracted['POLL_DIV_NM'][i]),
             '휘발유가격': extracted['B027_P'][i],
             '고급휘발유가격': price_or_na(extracted['B034_P'][i]),
             '경유가격': extracted['D047_P'][i],

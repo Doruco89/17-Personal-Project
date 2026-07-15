@@ -3,57 +3,198 @@
   <head>
     <meta charset="UTF-8" />
     <title>검색 결과</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Malgun Gothic", sans-serif;
+        margin: 0;
+        background: #f3f6fb;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px;
+      }
+      .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .result-count {
+        font-size: 18px;
+      }
+      .result-count b {
+        color: #ff6600;
+        font-size: 22px;
+      }
+      .csv-btn {
+        background: white;
+        border: 1px solid #ff6600;
+        color: #ff6600;
+        padding: 10px 18px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      .card {
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        padding: 20px 24px;
+      }
+      .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .card-name {
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .card-addr {
+        margin-top: 8px;
+        color: #444;
+      }
+      .card-addr a,
+      .card-addr a:visited {
+        color: #000;
+        text-decoration: none;
+      }
+      .card-phone {
+        margin-top: 4px;
+        color: #666;
+        font-size: 14px;
+      }
+      .tags {
+        margin-top: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .tag {
+        padding: 6px 12px;
+        border-radius: 16px;
+        font-size: 13px;
+        background: #f0f3fa;
+        color: #333;
+      }
+      .tag.diesel {
+        background: #1b4ef5;
+        color: white;
+      }
+      .tag.gasoline {
+        background: #ffcf00;
+        color: #333;
+      }
+      .tag.premium {
+        background: #d90000;
+        color: white;
+      }
+      .tag.amenity-yes {
+        background: #e4f4e6;
+        color: #1c7a34;
+      }
+      .tag.amenity-no {
+        background: #f0f0f0;
+        color: #999;
+      }
+      .back-link {
+        display: inline-block;
+        margin-top: 24px;
+        color: #ff6600;
+        text-decoration: none;
+      }
+      .pagination {
+        text-align: center;
+        margin-top: 30px;
+      }
+    </style>
   </head>
   <body>
-    <h1>{{ sido }} {{ sigungu }} 검색 결과 ({{ count }}개)</h1>
+    <div class="container">
+      <div class="result-header">
+        <div class="result-count">
+          <b>{{ count }}</b>개 검색됨 — {{ sido }} {{ sigungu }}
+        </div>
+        <a
+          class="csv-btn"
+          href="/download?sido={{ sido }}&sigungu={{ sigungu }}"
+          >⬇ 엑셀(CSV)로 저장</a
+        >
+      </div>
 
-    {% if error %}
-    <p style="color: red">오류 발생: {{ error }}</p>
-    {% endif %}
+      {% if error %}
+      <p style="color: red">오류 발생: {{ error }}</p>
+      {% endif %}
 
-    <a href="/download?sido={{ sido }}&sigungu={{ sigungu }}"
-      >📥 CSV 다운로드</a
-    >
+      <div class="card-grid">
+        {% for s in stations %}
+        <div class="card">
+          <div class="card-top">
+            <div class="card-name">{{ s['주유소명'] }}</div>
+            {% if s['브랜드로고'] %}
+            <img
+              src="{{ s['브랜드로고'] }}"
+              alt="{{ s['브랜드'] }}"
+              style="height: 24px"
+            />
+            {% else %}
+            <div class="tag" style="background: #eee">{{ s['브랜드'] }}</div>
+            {% endif %}
+          </div>
 
-    <table border="1">
-      <tr>
-        <th>주유소명</th>
-        <th>주소</th>
-        <th style="width: 130px">브랜드</th>
-        <th>경유</th>
-        <th>휘발유</th>
-        <th>고급휘발유</th>
-        <th>세차장</th>
-        <th>24시간</th>
-        <th>편의점</th>
-        <th>전화번호</th>
-      </tr>
-      {% for s in stations %}
-      <tr>
-        <td>{{ s['주유소명'] }}</td>
-        <td>
-          <a
-            href="https://www.google.com/maps/search/?api=1&query={{ s['주소']|urlencode }}"
-            target="_blank"
-          >
-            {{ s['주소'] }}
-          </a>
-        </td>
-        <td>{{ s['브랜드'] }}</td>
-        <td>{{ '{:,}'.format(s['경유가격']|int) }}원</td>
-        <td>{{ '{:,}'.format(s['휘발유가격']|int) }}원</td>
-        <td>
-          {{ s['고급휘발유가격'] if s['고급휘발유가격'] == '판매안함' else
-          '{:,}'.format(s['고급휘발유가격']|int) + '원' }}
-        </td>
-        <td>{{ s['세차장'] }}</td>
-        <td>{{ s['24시간영업'] }}</td>
-        <td>{{ s['편의점'] }}</td>
-        <td>{{ s['전화번호'] }}</td>
-      </tr>
-      {% endfor %}
-    </table>
+          <div class="card-addr">
+            📍
+            <a
+              href="https://www.google.com/maps/search/?api=1&query={{ s['주소']|urlencode }}"
+              target="_blank"
+              >{{ s['주소'] }}</a
+            >
+          </div>
+          <div class="card-phone">☎ {{ s['전화번호'] }}</div>
 
-    <a href="/">← 다시 검색</a>
+          <div class="tags">
+            <span class="tag diesel"
+              >경유 {{ '{:,}'.format(s['경유가격']|int) }}원</span
+            >
+            <span class="tag gasoline"
+              >휘발유 {{ '{:,}'.format(s['휘발유가격']|int) }}원</span
+            >
+            <span class="tag premium">
+              고급휘발유 {{ s['고급휘발유가격'] if s['고급휘발유가격'] ==
+              '판매안함' else '{:,}'.format(s['고급휘발유가격']|int) + '원' }}
+            </span>
+
+            {% if not any_checked or carwash_checked %}
+            <span
+              class="tag {{ 'amenity-yes' if s['세차장'] == '가능' else 'amenity-no' }}"
+              >세차장 {{ s['세차장'] }}</span
+            >
+            {% endif %} {% if not any_checked or hour24_checked %}
+            <span
+              class="tag {{ 'amenity-yes' if s['24시간영업'] == '가능' else 'amenity-no' }}"
+              >24시간 {{ s['24시간영업'] }}</span
+            >
+            {% endif %} {% if not any_checked or cvs_checked %}
+            <span
+              class="tag {{ 'amenity-yes' if s['편의점'] == '있음' else 'amenity-no' }}"
+              >편의점 {{ s['편의점'] }}</span
+            >
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <a class="back-link" href="/">← 다시 검색</a>
+    </div>
   </body>
 </html>

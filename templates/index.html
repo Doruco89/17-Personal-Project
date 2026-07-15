@@ -3,48 +3,151 @@
   <head>
     <meta charset="UTF-8" />
     <title>실시간 주유소 가격 검색</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Malgun Gothic", sans-serif;
+        margin: 0;
+        background: #f3f6fb;
+      }
+      .header {
+        background: #ff6600;
+        color: white;
+        padding: 40px 40px 90px;
+      }
+      .header-inner {
+        max-width: 900px;
+        margin: 0 auto;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 32px;
+      }
+      .header p {
+        margin: 8px 0 0;
+        opacity: 0.9;
+      }
+      .search-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        padding: 24px 28px;
+        margin: -50px auto 0;
+        max-width: 900px;
+        position: relative;
+      }
+      .search-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+      }
+      select {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        font-size: 15px;
+        min-width: 140px;
+      }
+      .pill-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #f0f3fa;
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .search-btn {
+        background: #ff6600;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .fuel-row {
+        margin-top: 12px;
+        font-size: 14px;
+        color: #555;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px;
+      }
+    </style>
   </head>
   <body>
-    <h1>⛽ 실시간 주유소 가격 검색</h1>
-    <form action="/search" method="get">
-      <select name="sido" id="sido">
-        <option value="">시/도 선택</option>
-        {% for sido in sido_list %}
-        <option value="{{ sido }}">{{ sido }}</option>
-        {% endfor %}
-      </select>
+    <div class="header">
+      <div class="header-inner">
+        <h1>⛽ 실시간 주유소 가격 검색</h1>
+        <p>
+          실시간 주유소 가격부터 24시간 운영, 세차장, 편의점 정보까지 한눈에
+          찾아보세요. (Data by 오피넷)
+        </p>
+      </div>
+    </div>
 
-      <select name="sigungu" id="sigungu">
-        <option value="">시/군/구 선택</option>
-      </select>
+    <div class="container" style="padding-top: 0">
+      <div class="search-card">
+        <form action="/search" method="get">
+          <div class="search-row">
+            <select name="sido" id="sido">
+              <option value="">시/도 선택</option>
+              {% for sido in sido_list %}
+              <option value="{{ sido }}">{{ sido }}</option>
+              {% endfor %}
+            </select>
 
-      <label><input type="checkbox" name="carwash" /> 세차장만</label>
-      <label><input type="checkbox" name="hour24" /> 24시간만</label>
-      <label><input type="checkbox" name="cvs" /> 편의점만</label>
-      <strong>정렬 기준 유종:</strong>
-      <label
-        ><input type="radio" name="fuel_type" value="경유가격" checked />
-        경유</label
-      >
-      <label
-        ><input type="radio" name="fuel_type" value="휘발유가격" />
-        휘발유</label
-      >
-      <label
-        ><input type="radio" name="fuel_type" value="고급휘발유가격" />
-        고급휘발유</label
-      >
-      <button type="submit">검색</button>
-    </form>
+            <select name="sigungu" id="sigungu">
+              <option value="">시/군/구 선택</option>
+            </select>
+
+            <label class="pill-label"
+              ><input type="checkbox" name="carwash" /> 세차장만</label
+            >
+            <label class="pill-label"
+              ><input type="checkbox" name="hour24" /> 24시간만</label
+            >
+            <label class="pill-label"
+              ><input type="checkbox" name="cvs" /> 편의점만</label
+            >
+
+            <button type="submit" class="search-btn">검색</button>
+          </div>
+
+          <div class="fuel-row">
+            <strong>정렬 기준 유종:</strong>
+            <label
+              ><input type="radio" name="fuel_type" value="경유가격" checked />
+              경유</label
+            >
+            <label
+              ><input type="radio" name="fuel_type" value="휘발유가격" />
+              휘발유</label
+            >
+            <label
+              ><input type="radio" name="fuel_type" value="고급휘발유가격" />
+              고급휘발유</label
+            >
+          </div>
+        </form>
+      </div>
+    </div>
 
     <script>
       document.getElementById("sido").addEventListener("change", function () {
         const sido = this.value;
         const sigunguSelect = document.getElementById("sigungu");
         sigunguSelect.innerHTML = '<option value="">불러오는 중...</option>';
-
         if (!sido) return;
-
         fetch(`/api/sigungu?sido=${encodeURIComponent(sido)}`)
           .then((res) => res.json())
           .then((data) => {
