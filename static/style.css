@@ -70,8 +70,8 @@ body {
 .hero-band {
   background: var(--surface-dark);
   color: var(--on-dark);
-  padding: 16px 32px 32px; /* 상단 여백 타이트하게 조정 */
-  text-align: center; /* 텍스트 중앙 정렬 */
+  padding: 28px 32px 32px; /* 창 폭과 무관하게 항상 일정한 상단 여백 */
+  text-align: center;
 }
 
 /* 하단 캡션 문구 */
@@ -497,22 +497,6 @@ select:focus {
 
 /* ---------- 모바일 대응 ---------- */
 @media (max-width: 640px) {
-  /* 검색창: 한 줄에 억지로 다 넣지 않고 자연스럽게 줄바꿈 */
-  .search-panel {
-    width: 100%;
-  }
-  .search-row {
-    flex-wrap: wrap;
-  }
-  .search-row select,
-  .search-row .chip-toggle {
-    flex: 1 1 calc(50% - 6px);
-    min-width: 0;
-  }
-  .search-row .btn-pill-primary {
-    width: 100%;
-  }
-
   /* 6번째 결과부터 나오는 카드 그리드: 2열 -> 1열 */
   .card-grid-compact {
     grid-template-columns: 1fr;
