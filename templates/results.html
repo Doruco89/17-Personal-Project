@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>어디있지? · 검색 결과</title>
+    <title>차밥 · 검색 결과</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;800&display=swap"
@@ -14,11 +14,6 @@
     />
   </head>
   <body>
-    <div class="nav-bar">
-      <span class="anchor-mark"></span>
-      <span class="wordmark">어디있지?</span>
-    </div>
-
     <div class="results-hero">
       <h2>{{ count }}개 검색됨</h2>
       <div class="meta">{{ sido }} · {{ sigungu }} · 최저가 TOP20</div>
@@ -48,16 +43,21 @@
     /></span>
     {% else %}
     <span class="badge-chip">{{ s['브랜드'] }}</span>
-    {% endif %} {% endmacro %} {% macro amenities(s) %} {% if not any_checked or
-    carwash_checked %}
+    {% endif %} {% endmacro %} {% macro amenities(s) %}
     <span class="amenity-chip {{ 'good' if s['세차장'] == '가능' else 'bad' }}"
       >세차장 {{ s['세차장'] }}</span
     >
-    {% endif %} {% if s['편의점'] == '있음' and (not any_checked or cvs_checked)
-    %}
+    <span
+      class="amenity-chip {{ 'good' if s['24시간영업'] == '가능' else 'bad' }}"
+      >24시간 {{ s['24시간영업'] }}</span
+    >
+    {% if s['편의점'] == '있음' %}
     <span class="amenity-chip good">편의점 있음</span>
+    {% endif %} {% if s.get('거리km') is not none %}
+    <span class="badge-chip">내 위치에서 {{ s['거리km'] }}km</span>
     {% endif %} {% endmacro %} {% macro spec_row(s) %}
     <div class="spec-row">
+      {% if fuel_type == '경유가격' %}
       <div class="spec-cell diesel">
         <div class="val">
           {{ s['경유가격'] if s['경유가격'] == '판매안함' else
@@ -67,6 +67,7 @@
           경유{{ '' if s['경유가격'] == '판매안함' else ' · 원' }}
         </div>
       </div>
+      {% elif fuel_type == '휘발유가격' %}
       <div class="spec-cell gasoline">
         <div class="val">
           {{ s['휘발유가격'] if s['휘발유가격'] == '판매안함' else
@@ -76,6 +77,7 @@
           휘발유{{ '' if s['휘발유가격'] == '판매안함' else ' · 원' }}
         </div>
       </div>
+      {% elif fuel_type == '고급휘발유가격' %}
       <div class="spec-cell premium">
         <div class="val">
           {{ s['고급휘발유가격'] if s['고급휘발유가격'] == '판매안함' else
@@ -85,6 +87,7 @@
           고급휘발유{{ '' if s['고급휘발유가격'] == '판매안함' else ' · 원' }}
         </div>
       </div>
+      {% endif %}
     </div>
     {% endmacro %}
 

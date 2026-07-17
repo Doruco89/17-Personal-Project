@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>차 밥</title>
+    <title>차밥</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;800&display=swap"
@@ -12,16 +12,41 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
     />
+    <style>
+      .hero-band {
+        text-align: center;
+      }
+      .hero-band p {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .hero-band .tagline {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--primary);
+        margin: 4px auto 12px;
+      }
+      .search-panel {
+        max-width: 1180px;
+      }
+      .search-row {
+        flex-wrap: nowrap;
+      }
+      .search-row .btn-pill-primary {
+        margin-left: auto;
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+      .chip-toggle:has(input[name="hour24"]) {
+        margin-left: 12px;
+      }
+    </style>
   </head>
   <body>
-    <div class="nav-bar">
-      <span class="anchor-mark"></span>
-      <span class="wordmark">어디있지?</span>
-    </div>
-
     <div class="hero-band">
       <div class="eyebrow">Real-Time Fuel & EV Charger Search</div>
-      <h1>어디있지?</h1>
+      <h1>차밥</h1>
+      <p class="tagline">나만 밥 먹나? 차도 밥 먹어야지!</p>
       <p>
         오피넷 오픈API와 전기차 충전소 공공API를 통해 지역별 유가와 전기차
         충전소 정보를 한 번에 확인하세요.
@@ -58,6 +83,10 @@
               ><input type="checkbox" name="cvs" style="display: none" />
               편의점만</label
             >
+            <label class="chip-toggle oil-only"
+              ><input type="checkbox" name="hour24" style="display: none" />
+              24시간만</label
+            >
 
             <button type="submit" class="btn-pill-primary">검색</button>
           </div>
@@ -65,6 +94,9 @@
           <div class="fuel-row">
             <span class="label-eyebrow">선택됨</span>
             <span class="badge-chip" id="mode-display">경유</span>
+            <span class="label-eyebrow" id="loc-note"
+              >위치 허용하면 가까운 순으로 정렬해드려요</span
+            >
           </div>
         </div>
       </form>
@@ -99,8 +131,22 @@
 
       // 제출 시 선택값에 따라 목적지(/search 또는 /charger/search)와
       // fuel_type 파라미터를 세팅
-      mainForm.addEventListener("submit", function () {
+      function setHiddenInput(form, name, value) {
+        let input = form.querySelector(`input[name="${name}"]`);
+        if (!input) {
+          input = document.createElement("input");
+          input.type = "hidden";
+          input.name = name;
+          form.appendChild(input);
+        }
+        input.value = value;
+      }
+
+      mainForm.addEventListener("submit", function (e) {
         const mode = modeSelect.value;
+        // 위치 정보를 받아온 뒤에 제출해야 하므로 일단 막고 직접 제출한다.
+        e.preventDefault();
+
         if (mode === "전기차") {
           mainForm.action = "/charger/search";
         } else {
@@ -113,6 +159,25 @@
             mainForm.appendChild(fuelInput);
           }
           fuelInput.value = FUEL_PARAM[mode];
+        }
+
+        const submitNow = () => mainForm.submit();
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              setHiddenInput(mainForm, "lat", pos.coords.latitude);
+              setHiddenInput(mainForm, "lng", pos.coords.longitude);
+              submitNow();
+            },
+            () => {
+              // 위치 거부/실패해도 지역(시/도·시/군/구) 기준 검색은 그대로 진행
+              submitNow();
+            },
+            { timeout: 3000 },
+          );
+        } else {
+          submitNow();
         }
       });
 

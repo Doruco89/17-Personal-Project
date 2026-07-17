@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>어디있지? · 충전소 검색 결과</title>
+    <title>차밥 · 충전소 검색 결과</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;800&display=swap"
@@ -14,11 +14,6 @@
     />
   </head>
   <body>
-    <div class="nav-bar">
-      <span class="anchor-mark"></span>
-      <span class="wordmark">어디있지?</span>
-    </div>
-
     <div class="results-hero">
       <h2>{{ count }}개 검색됨</h2>
       <div class="meta">{{ sido }} · {{ sigungu }} · 전기차 충전소</div>
@@ -42,12 +37,16 @@
     >
       오류 발생: {{ error }}
     </p>
-    {% endif %} {% macro stat_chip(s) %}
-    <span
-      class="amenity-chip {{ 'good' if s['충전기상태'] == '충전대기' else 'bad' }}"
-      >{{ s['충전기상태'] }}</span
+    {% endif %} {% macro slot_summary(s) %}
+    <span class="amenity-chip {{ 'bad' if s['충전중'] > 0 else 'good' }}"
+      >{{ s['전체칸수'] }}칸 중 {{ s['충전중'] }}칸 충전중</span
     >
-    {% endmacro %}
+    <span class="amenity-chip {{ 'good' if s['고속충전가능'] else 'bad' }}"
+      >{{ '고속충전 가능' if s['고속충전가능'] else '완속만 가능' }}</span
+    >
+    {% if s.get('거리km') is not none %}
+    <span class="badge-chip">내 위치에서 {{ s['거리km'] }}km</span>
+    {% endif %} {% endmacro %}
 
     <div class="results-wrap">
       {% for s in stations[:5] %}
@@ -66,9 +65,13 @@
         <div class="card-phone">{{ s['연락처'] }}</div>
 
         <div class="amenity-row" style="margin-top: 14px">
-          {{ stat_chip(s) }}
-          <span class="amenity-chip">{{ s['충전기타입'] }}</span>
+          {{ slot_summary(s) }}
           <span class="amenity-chip">{{ s['이용가능시간'] }}</span>
+        </div>
+        <div class="amenity-row" style="margin-top: 8px">
+          {% for c in s['커넥터목록'] %}
+          <span class="badge-chip">{{ c }}</span>
+          {% endfor %}
         </div>
       </div>
       {% endfor %} {% if stations|length > 5 %}
@@ -88,10 +91,7 @@
           </div>
           <div class="card-phone">{{ s['연락처'] }}</div>
 
-          <div class="amenity-row">
-            {{ stat_chip(s) }}
-            <span class="amenity-chip">{{ s['충전기타입'] }}</span>
-          </div>
+          <div class="amenity-row">{{ slot_summary(s) }}</div>
         </div>
         {% endfor %}
       </div>
