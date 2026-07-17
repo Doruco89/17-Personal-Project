@@ -150,7 +150,7 @@ body {
 }
 .search-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* 검색창이 줄바꿈되지 않고 항상 한 줄(24시간만 옆에 검색 버튼)로 유지되도록 수정 */
   gap: 12px;
   align-items: center;
 }
@@ -186,6 +186,7 @@ select:focus {
   letter-spacing: 0.3px;
   cursor: pointer;
   border: 1px solid var(--hairline-strong);
+  white-space: nowrap; /* 칩 텍스트도 줄바꿈되지 않도록 */
 }
 .chip-toggle:has(input:checked) {
   background: var(--ink);
@@ -215,6 +216,8 @@ select:focus {
   font-weight: 700;
   letter-spacing: 0.5px;
   cursor: pointer;
+  flex-shrink: 0; /* 버튼이 찌그러들지 않고 항상 같은 크기로, 24시간만 바로 옆에 위치 */
+  white-space: nowrap;
 }
 .btn-pill-primary:active {
   background: var(--primary-active);
@@ -316,7 +319,10 @@ select:focus {
   margin: 0;
 }
 
+/* 일반 배지: 거리, kW, 커넥터 정보 등 - 텍스트 길이에 맞게 유동적으로 */
 .badge-chip {
+  display: inline-flex;
+  align-items: center;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.3px;
@@ -327,23 +333,53 @@ select:focus {
   padding: 6px 14px;
   white-space: nowrap;
 }
-.badge-logo {
+/* 브랜드/운영기관 전용 배지(로고 없을 때 텍스트 대체) - 로고 배지와 항상 동일한 고정 크기 */
+.badge-brand {
   display: inline-flex;
   align-items: center;
-  padding: 6px 14px;
+  justify-content: center;
+  width: 110px;
+  height: 30px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--ink);
   background: var(--canvas);
   border: 1px solid var(--hairline-strong);
   border-radius: 0;
+  padding: 0 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.badge-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 110px;
+  height: 30px;
+  padding: 3px 6px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 0;
+  overflow: hidden;
 }
 .badge-logo img {
-  height: 18px;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   display: block;
 }
-.card-compact .badge-logo {
-  padding: 3px 10px;
+.card-compact .badge-brand {
+  width: 76px;
+  height: 20px;
+  font-size: 10px;
+  padding: 0 4px;
 }
-.card-compact .badge-logo img {
-  height: 13px;
+.card-compact .badge-logo {
+  width: 76px;
+  height: 20px;
+  padding: 2px 4px;
 }
 
 .card-addr {
@@ -438,15 +474,13 @@ select:focus {
   border: 1px solid var(--hairline);
   border-radius: 0;
   padding: 16px;
+  min-width: 0; /* CSS Grid 자식은 기본 min-width:auto라 내용이 길면 셀 밖으로 넘칠 수 있어 명시적으로 0으로 지정 */
+  overflow-wrap: break-word;
 }
 .card-compact .card-name {
   font-size: 15px;
   font-weight: 700;
   margin: 0;
-}
-.card-compact .badge-chip {
-  font-size: 10px;
-  padding: 3px 10px;
 }
 .card-compact .card-addr {
   font-size: 12px;
@@ -472,6 +506,10 @@ select:focus {
   gap: 5px;
 }
 .card-compact .amenity-chip {
+  font-size: 10px;
+  padding: 3px 9px;
+}
+.card-compact .badge-chip {
   font-size: 10px;
   padding: 3px 9px;
 }

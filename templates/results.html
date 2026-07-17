@@ -43,7 +43,7 @@
       ><img src="{{ s['브랜드로고'] }}" alt="{{ s['브랜드'] }}"
     /></span>
     {% else %}
-    <span class="badge-chip">{{ s['브랜드'] }}</span>
+    <span class="badge-brand">{{ s['브랜드'] }}</span>
     {% endif %} {% endmacro %} {% macro amenities(s) %}
     <span class="amenity-chip {{ 'good' if s['세차장'] == '가능' else 'bad' }}"
       >세차장 {{ s['세차장'] }}</span
