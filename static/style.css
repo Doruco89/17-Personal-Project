@@ -1,13 +1,23 @@
 :root {
-  --primary: #e60000;
+  --primary: #1c69d4; /* BMW Blue */
+  --primary-active: #0653b6;
   --on-primary: #ffffff;
-  --ink: #25282b;
-  --body: #7e7e7e;
-  --mute: #bebebe;
+  --ink: #262626;
+  --body: #3c3c3c;
+  --mute: #9a9a9a;
+  --hairline: #e6e6e6;
+  --hairline-strong: #cccccc;
   --canvas: #ffffff;
-  --canvas-soft: #f2f2f2;
+  --canvas-soft: #f7f7f7; /* surface-soft */
+  --surface-card: #fafafa;
+  --surface-dark: #1a2129;
   --on-dark: #ffffff;
-  --success: #1a9d4b;
+  --on-dark-soft: #bbbbbb;
+  --success: #22c55e;
+
+  --diesel-accent: #1c69d4;
+  --gasoline-accent: #f0dd0d;
+  --premium-accent: #ac1616;
 }
 
 * {
@@ -18,29 +28,37 @@ body {
   margin: 0;
   background: var(--canvas);
   color: var(--ink);
-  font-family: "Inter", Arial, "Malgun Gothic", sans-serif;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-weight: 300;
 }
 
-/* ---------- nav ---------- */
 .nav-bar {
-  background: var(--ink);
-  color: var(--on-dark);
-  padding: 16px 32px;
+  background: var(--canvas);
+  color: var(--ink);
+  padding: 0 32px;
+  height: 64px;
   display: flex;
   align-items: center;
+  border-bottom: 1px solid var(--hairline);
 }
 .nav-bar .wordmark {
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -0.3px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
 }
 
-/* ---------- speechmark-style anchor ---------- */
+/* ---------- 아이콘 배지: 원형(icon-button만 circular 허용) ---------- */
 .anchor-mark {
   width: 40px;
   height: 40px;
   background: var(--primary);
-  border-radius: 6px;
+  border-radius: 9999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -48,46 +66,46 @@ body {
   margin-right: 12px;
 }
 
-/* ---------- hero band (dark) ---------- */
+/* ---------- hero band (surface-dark navy) ---------- */
 .hero-band {
-  background: var(--ink);
+  background: var(--surface-dark);
   color: var(--on-dark);
-  padding: 56px 32px 48px;
+  padding: 80px 32px; /* spacing.section */
 }
 .hero-band .eyebrow {
-  font-size: 14px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 1.5px; /* label-uppercase */
+  color: var(--on-dark-soft);
   margin-bottom: 16px;
 }
 .hero-band h1 {
-  font-size: 56px;
-  font-weight: 800;
-  letter-spacing: -1px;
+  font-size: 64px; /* display-xl */
+  font-weight: 700;
+  letter-spacing: 0;
   line-height: 1.05;
   margin: 0 0 16px;
 }
 .hero-band p {
-  font-size: 19px;
-  font-weight: 300;
+  font-size: 16px;
+  font-weight: 300; /* body-md Light */
   max-width: 640px;
-  color: rgba(255, 255, 255, 0.82);
-  line-height: 1.5;
+  color: var(--on-dark-soft);
+  line-height: 1.55;
   margin: 0;
 }
 
-/* ---------- content band (white) ---------- */
+/* ---------- content band ---------- */
 .content-band {
   background: var(--canvas);
-  padding: 40px 32px 48px;
+  padding: 48px 32px;
 }
 .search-panel {
   max-width: 960px;
   margin: 0 auto;
-  border: 1px solid var(--ink);
-  border-radius: 6px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 0; /* rounded.none — 사각형이 기본 */
   padding: 24px 28px;
 }
 .search-row {
@@ -99,102 +117,100 @@ body {
 
 select {
   background: var(--canvas);
-  border: 1px solid var(--ink);
-  border-radius: 6px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 0;
   color: var(--ink);
   height: 48px;
   padding: 0 16px;
   font-size: 16px;
+  font-weight: 300;
   font-family: inherit;
   min-width: 160px;
 }
+select:focus {
+  outline: none;
+  border-color: var(--ink); /* 포커스 시 보더만 진해짐, 그림자 없음 */
+}
 
+/* filter-chip / filter-chip-active: 사각형, 헤어라인 보더 */
 .chip-toggle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   height: 40px;
   padding: 0 16px;
-  border-radius: 32px;
-  background: var(--canvas-soft);
+  border-radius: 0;
+  background: var(--canvas);
   color: var(--ink);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
+  letter-spacing: 0.3px;
   cursor: pointer;
-  border: 1px solid transparent;
+  border: 1px solid var(--hairline-strong);
 }
 .chip-toggle:has(input:checked) {
-  background: var(--canvas);
-  border: 1px solid var(--primary);
-  color: var(--primary);
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-dark);
 }
 
-/* 유종별 정렬 칩 색상 */
+/* 유종 구분: 배경색 대신 좌측 보더 4px로만 최소 표시 */
 .chip-fuel.diesel {
-  border: 1px solid #1c69d4;
-  color: #1c69d4;
-  background: var(--canvas);
+  border-left: 4px solid var(--diesel-accent);
 }
-.chip-fuel.diesel:has(input:checked) {
-  background: #1c69d4;
-  color: #ffffff;
-}
-
 .chip-fuel.gasoline {
-  border: 1px solid #f4b400;
-  color: #8a6200;
-  background: var(--canvas);
+  border-left: 4px solid var(--gasoline-accent);
 }
-.chip-fuel.gasoline:has(input:checked) {
-  background: #f4b400;
-  color: #25282b;
-}
-
 .chip-fuel.premium {
-  border: 1px solid var(--primary);
-  color: var(--primary);
-  background: var(--canvas);
-}
-.chip-fuel.premium:has(input:checked) {
-  background: var(--primary);
-  color: #ffffff;
+  border-left: 4px solid var(--premium-accent);
 }
 
+/* button-primary: 사각형, BMW Blue, 48px, padding 14x32 */
 .btn-pill-primary {
   background: var(--primary);
   color: var(--on-primary);
   border: 1px solid var(--primary);
-  border-radius: 60px;
+  border-radius: 0;
   height: 48px;
-  padding: 0 28px;
-  font-size: 16px;
+  padding: 0 32px;
+  font-size: 14px;
   font-weight: 700;
+  letter-spacing: 0.5px;
   cursor: pointer;
 }
+.btn-pill-primary:active {
+  background: var(--primary-active);
+  border-color: var(--primary-active);
+}
+
+/* button-secondary: 화이트 + 헤어라인 보더 */
 .btn-pill-outline {
   display: inline-flex;
   align-items: center;
   background: var(--canvas);
-  color: var(--primary);
-  border: 1px solid var(--primary);
-  border-radius: 60px;
+  color: var(--ink);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 0;
   height: 48px;
   padding: 0 24px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
+  letter-spacing: 0.5px;
   text-decoration: none;
 }
+/* button-secondary-on-dark */
 .btn-pill-outline-dark {
   display: inline-flex;
   align-items: center;
-  background: var(--canvas);
+  background: transparent;
   color: var(--ink);
-  border: 1px solid var(--ink);
-  border-radius: 60px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 0;
   height: 44px;
   padding: 0 22px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
+  letter-spacing: 0.5px;
   text-decoration: none;
 }
 
@@ -206,47 +222,48 @@ select {
   flex-wrap: wrap;
 }
 .fuel-row .label-eyebrow {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--body);
+  letter-spacing: 1.5px;
+  color: var(--mute);
   margin-right: 6px;
 }
 
-/* ---------- results hero (dark) ---------- */
+/* ---------- results hero (surface-dark) ---------- */
 .results-hero {
-  background: var(--ink);
+  background: var(--surface-dark);
   color: var(--on-dark);
-  padding: 48px 32px 36px;
+  padding: 56px 32px 40px;
 }
 .results-hero h2 {
-  font-size: 38px;
-  font-weight: 300;
+  font-size: 32px; /* display-md */
+  font-weight: 700;
   margin: 0 0 6px;
 }
 .results-hero .meta {
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.65);
+  font-size: 13px;
+  color: var(--on-dark-soft);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
 }
 .results-actions {
   margin-top: 22px;
 }
 
-/* ---------- result cards ---------- */
+/* ---------- result cards (model-card 패턴) ---------- */
 .results-wrap {
   max-width: 960px;
   margin: 0 auto;
-  padding: 40px 32px 24px;
+  padding: 48px 32px 24px;
 }
 
 .card-lead {
   background: var(--canvas);
-  border: 1px solid var(--canvas-soft);
-  border-radius: 6px;
-  padding: 24px 28px;
+  border: 1px solid var(--hairline);
+  border-radius: 0;
+  padding: 24px;
   margin-bottom: 16px;
 }
 .card-top {
@@ -256,17 +273,20 @@ select {
   gap: 12px;
 }
 .card-lead .card-name {
-  font-size: 26px;
+  font-size: 24px; /* display-sm */
   font-weight: 700;
   margin: 0;
 }
 
+/* badge-chip: 사각형, 헤어라인 */
 .badge-chip {
   font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.3px;
   color: var(--ink);
-  background: var(--canvas-soft);
-  border-radius: 32px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 0;
   padding: 6px 14px;
   white-space: nowrap;
 }
@@ -274,8 +294,9 @@ select {
   display: inline-flex;
   align-items: center;
   padding: 6px 14px;
-  background: var(--canvas-soft);
-  border-radius: 32px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 0;
 }
 .badge-logo img {
   height: 18px;
@@ -291,6 +312,7 @@ select {
 .card-addr {
   margin-top: 10px;
   font-size: 15px;
+  font-weight: 300;
   color: var(--body);
 }
 .card-addr a {
@@ -300,62 +322,52 @@ select {
 .card-phone {
   margin-top: 2px;
   font-size: 13px;
+  font-weight: 300;
   color: var(--mute);
 }
 
+/* spec-cell: 배경색 없이 헤어라인 구분선만 (BMW spec-cell 패턴) */
 .spec-row {
   display: flex;
-  gap: 1px;
-  background: var(--mute);
-  border: 1px solid var(--mute);
-  border-radius: 6px;
+  gap: 0;
+  background: transparent;
+  border: 1px solid var(--hairline);
+  border-radius: 0;
   overflow: hidden;
   margin-top: 18px;
 }
 .spec-cell {
   flex: 1;
   background: var(--canvas);
-  padding: 12px 14px;
+  padding: 14px;
+  border-left: 1px solid var(--hairline);
+}
+.spec-cell:first-child {
+  border-left: none;
 }
 .spec-cell .val {
-  font-size: 20px;
+  font-size: 24px; /* display-sm */
   font-weight: 700;
   color: var(--ink);
 }
 .spec-cell .lbl {
-  font-size: 11px;
-  letter-spacing: 0.57px;
+  font-size: 12px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--body);
+  color: var(--mute);
   margin-top: 3px;
   font-weight: 700;
 }
 
-/* 유종별 가격 셀 색상 */
+/* 유종별 구분: 배경 채우기 대신 상단 4px 바 */
 .spec-cell.diesel {
-  background: #1c69d4;
+  box-shadow: inset 0 4px 0 0 var(--diesel-accent);
 }
-.spec-cell.diesel .val,
-.spec-cell.diesel .lbl {
-  color: #ffffff;
-}
-
 .spec-cell.gasoline {
-  background: #f4b400;
+  box-shadow: inset 0 4px 0 0 var(--gasoline-accent);
 }
-.spec-cell.gasoline .val {
-  color: #25282b;
-}
-.spec-cell.gasoline .lbl {
-  color: #4a3800;
-}
-
 .spec-cell.premium {
-  background: var(--primary);
-}
-.spec-cell.premium .val,
-.spec-cell.premium .lbl {
-  color: #ffffff;
+  box-shadow: inset 0 4px 0 0 var(--premium-accent);
 }
 
 .amenity-row {
@@ -367,8 +379,9 @@ select {
 .amenity-chip {
   font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.3px;
   padding: 5px 12px;
-  border-radius: 32px;
+  border-radius: 0;
   background: var(--canvas);
 }
 .amenity-chip.good {
@@ -376,11 +389,11 @@ select {
   color: var(--success);
 }
 .amenity-chip.bad {
-  border: 1px solid var(--primary);
-  color: var(--primary);
+  border: 1px solid var(--hairline-strong);
+  color: var(--mute);
 }
 
-/* ---------- compact grid (6th result onward, ~50% width) ---------- */
+/* ---------- compact grid ---------- */
 .card-grid-compact {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -389,9 +402,9 @@ select {
 }
 .card-compact {
   background: var(--canvas);
-  border: 1px solid var(--canvas-soft);
-  border-radius: 6px;
-  padding: 14px 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 0;
+  padding: 16px;
 }
 .card-compact .card-name {
   font-size: 15px;
@@ -413,10 +426,10 @@ select {
   margin-top: 10px;
 }
 .card-compact .spec-cell {
-  padding: 7px 8px;
+  padding: 8px;
 }
 .card-compact .spec-cell .val {
-  font-size: 13px;
+  font-size: 14px;
 }
 .card-compact .spec-cell .lbl {
   font-size: 9px;
@@ -436,13 +449,13 @@ select {
   padding: 0 32px;
 }
 
-/* ---------- footer ---------- */
+/* ---------- footer (surface-soft, 순백 아님) ---------- */
 .footer {
-  background: var(--ink);
-  color: rgba(255, 255, 255, 0.6);
+  background: var(--surface-dark);
+  color: var(--on-dark-soft);
   padding: 32px;
   text-align: center;
   font-size: 12px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  font-weight: 300;
+  letter-spacing: 0.3px;
 }

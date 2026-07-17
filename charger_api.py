@@ -40,23 +40,57 @@ CHGER_TYPE_NAME = {
     "04": "DC콤보", "05": "DC차데모+DC콤보", "06": "DC차데모+AC3상+DC콤보",
     "07": "AC3상", "08": "DC콤보(완속)", "09": "NACS(테슬라)",
 }
-# 완속(AC완속=02) 외에는 전부 급속/고속 충전으로 간주
-SLOW_TYPE_CODES = {"02"}
+ 
+# 충전용량(kW) 등급 (2026년 8월 시행 기후에너지환경부 공공충전요금 5단계 기준)
+_POWER_TIERS = [
+    (30, "완속"),
+    (50, "중속"),
+    (100, "급속"),
+    (200, "급속(대용량)"),
+]
+_POWER_TIER_ULTRA = "초급속"
+# 등급 우선순위(높을수록 빠름) - 충전소 전체의 "최고 등급" 계산에 사용
+_TIER_RANK = {"완속": 0, "중속": 1, "급속": 2, "급속(대용량)": 3, "초급속": 4, "알수없음": -1}
+ 
+# 사용자에게 보여주는 3단계 선택지 -> 실제 세부 등급 매핑
+CATEGORY_TIERS = {
+    "일반": {"완속", "중속", "급속"},
+    "급속": {"급속(대용량)"},
+    "초급속": {"초급속"},
+}
+ 
+ 
+def _power_tier(kw):
+    """kW 숫자를 등급명으로 변환"""
+    if kw is None:
+        return "알수없음"
+    for threshold, name in _POWER_TIERS:
+        if kw < threshold:
+            return name
+    return _POWER_TIER_ULTRA
  
 _DEMO_STATIONS = [
     {
         '충전소명': '(데모) 강남역 공영주차장 충전소', '주소': '서울 강남구 테헤란로 152',
         '운영기관': '환경부', '연락처': '1600-0000', '이용가능시간': '24시간 이용가능',
         '전체칸수': 3, '충전중': 1, '충전대기': 2, '고속충전가능': True,
-        '커넥터목록': ['DC차데모+AC3상+DC콤보(충전대기)', 'DC콤보(충전중)', 'AC완속(충전대기)'],
+        '최대출력kW': 100.0, '최고등급': '급속(대용량)',
+        '커넥터목록': [
+            'DC차데모+AC3상+DC콤보 50kW · 급속(충전대기)',
+            'DC콤보 100kW · 급속(대용량)(충전중)',
+            'AC완속 7kW · 완속(충전대기)',
+        ],
         '_lat': 37.4980, '_lng': 127.0276,
+        '_tiers': {'급속', '급속(대용량)', '완속'},
     },
     {
         '충전소명': '(데모) 역삼 e편한세상 충전소', '주소': '서울 강남구 역삼로 210',
         '운영기관': '한국전력공사', '연락처': '1588-0000', '이용가능시간': '09:00~18:00',
         '전체칸수': 1, '충전중': 1, '충전대기': 0, '고속충전가능': False,
-        '커넥터목록': ['AC완속(충전중)'],
+        '최대출력kW': 7.0, '최고등급': '완속',
+        '커넥터목록': ['AC완속 7kW · 완속(충전중)'],
         '_lat': 37.5006, '_lng': 127.0365,
+        '_tiers': {'완속'},
     },
 ]
  
@@ -71,9 +105,11 @@ def _haversine_km(lat1, lng1, lat2, lng2):
     return 2 * r * math.asin(math.sqrt(a))
  
  
-def _sort_stations(stations, user_lat=None, user_lng=None):
-    """충전 가능(빈 칸 있음)한 곳을 우선, 그 다음 내 위치와 가까운 순으로 정렬"""
+def _sort_stations(stations, user_lat=None, user_lng=None, power_category=None):
+    """1순위: 선택한 충전 등급(일반/급속/초급속) 보유 여부,
+    2순위: 충전 가능(빈 칸 있음) 여부, 3순위: 내 위치와 가까운 순"""
     has_location = user_lat is not None and user_lng is not None
+    wanted_tiers = CATEGORY_TIERS.get(power_category)
  
     for s in stations:
         if has_location and s.get('_lat') is not None and s.get('_lng') is not None:
@@ -82,16 +118,20 @@ def _sort_stations(stations, user_lat=None, user_lng=None):
             s['거리km'] = None
  
     def sort_key(s):
+        if wanted_tiers:
+            has_wanted_tier = 0 if s.get('_tiers', set()) & wanted_tiers else 1
+        else:
+            has_wanted_tier = 0
         fully_occupied = 1 if s['충전대기'] == 0 else 0  # 충전가능(0)이 먼저 오도록
         distance = s['거리km'] if s['거리km'] is not None else float('inf')
-        return (fully_occupied, distance)
+        return (has_wanted_tier, fully_occupied, distance)
  
     return sorted(stations, key=sort_key)
  
  
-def get_stations(sido_nm, sigungu_nm, user_lat=None, user_lng=None):
+def get_stations(sido_nm, sigungu_nm, user_lat=None, user_lng=None, power_category=None):
     if EV_DEMO_MODE:
-        return _sort_stations(list(_DEMO_STATIONS), user_lat, user_lng)
+        return _sort_stations(list(_DEMO_STATIONS), user_lat, user_lng, power_category)
  
     zcode = EV_SIDO_CODE.get(sido_nm, "")
     params = {
@@ -136,10 +176,13 @@ def get_stations(sido_nm, sigungu_nm, user_lat=None, user_lng=None):
             }
         type_code = str(item.get('chgerType', ''))
         stat_code = str(item.get('stat', ''))
+        # 충전용량(kW). 응답 버전에 따라 output 또는 powerType 필드명을 쓰는 경우가 있어 둘 다 확인.
+        power = item.get('output') or item.get('powerType')
         stations_by_id[stat_id]['_connectors'].append({
             'type_code': type_code,
             'type_name': CHGER_TYPE_NAME.get(type_code, f'기타({type_code})'),
             'status': CHGER_STAT.get(stat_code, '상태미확인'),
+            'power': power,
         })
  
     stations = []
@@ -148,8 +191,28 @@ def get_stations(sido_nm, sigungu_nm, user_lat=None, user_lng=None):
         s['전체칸수'] = len(connectors)
         s['충전중'] = sum(1 for c in connectors if c['status'] == '충전중')
         s['충전대기'] = sum(1 for c in connectors if c['status'] == '충전대기')
-        s['고속충전가능'] = any(c['type_code'] not in SLOW_TYPE_CODES for c in connectors)
-        s['커넥터목록'] = [f"{c['type_name']}({c['status']})" for c in connectors]
+ 
+        powers = []
+        for c in connectors:
+            try:
+                c['power_kw'] = float(c['power']) if c.get('power') else None
+            except (TypeError, ValueError):
+                c['power_kw'] = None
+            c['tier'] = _power_tier(c['power_kw'])
+            if c['power_kw'] is not None:
+                powers.append(c['power_kw'])
+ 
+        s['최대출력kW'] = max(powers) if powers else None
+        # 커넥터 중 가장 빠른 등급을 충전소의 대표 등급으로
+        best_tier = max((c['tier'] for c in connectors), key=lambda t: _TIER_RANK[t], default='알수없음')
+        s['최고등급'] = best_tier
+        s['고속충전가능'] = _TIER_RANK.get(best_tier, -1) >= _TIER_RANK['급속']
+        s['_tiers'] = {c['tier'] for c in connectors}
+        s['커넥터목록'] = [
+            f"{c['type_name']} {c['power_kw']:g}kW · {c['tier']}({c['status']})" if c['power_kw'] is not None
+            else f"{c['type_name']}({c['status']})"
+            for c in connectors
+        ]
         stations.append(s)
  
-    return _sort_stations(stations, user_lat, user_lng)
+    return _sort_stations(stations, user_lat, user_lng, power_category)

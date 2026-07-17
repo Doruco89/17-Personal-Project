@@ -41,10 +41,13 @@
     <span class="amenity-chip {{ 'bad' if s['충전중'] > 0 else 'good' }}"
       >{{ s['전체칸수'] }}칸 중 {{ s['충전중'] }}칸 충전중</span
     >
-    <span class="amenity-chip {{ 'good' if s['고속충전가능'] else 'bad' }}"
-      >{{ '고속충전 가능' if s['고속충전가능'] else '완속만 가능' }}</span
+    <span
+      class="amenity-chip {{ 'bad' if s['최고등급'] == '완속' else 'good' }}"
+      >최고 {{ s['최고등급'] }}</span
     >
-    {% if s.get('거리km') is not none %}
+    {% if s.get('최대출력kW') %}
+    <span class="badge-chip">최대 {{ s['최대출력kW']|int }}kW</span>
+    {% endif %} {% if s.get('거리km') is not none %}
     <span class="badge-chip">내 위치에서 {{ s['거리km'] }}km</span>
     {% endif %} {% endmacro %}
 

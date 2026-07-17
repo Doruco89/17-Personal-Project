@@ -1,58 +1,144 @@
 <!doctype html>
-<html>
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <title>차밥</title>
+    <title>차밥 - 주유소 & 충전소</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;800&display=swap"
       rel="stylesheet"
     />
+    <!-- 외부 스타일시트 유지 -->
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
+      href="{{ url_for('static', filename=stylesheet) }}"
     />
     <style>
+      /* --- [수정 구간: 상단 헤더 영역 스타일] --- */
       .hero-band {
         text-align: center;
+        /* 제공된 코드의 패딩 유지 */
+        padding-top: 16px;
+        padding-bottom: 32px;
+        /* 배경색은 외부 CSS(--surface-dark)에서 정의된 어두운색이 적용된다고 가정합니다. 
+           만약 하얀 배경이 나온다면 여기에 배경색을 추가해야 합니다. */
       }
       .hero-band p {
         margin-left: auto;
         margin-right: auto;
       }
-      .hero-band .tagline {
-        font-size: 22px;
-        font-weight: 800;
-        color: var(--primary);
-        margin: 4px auto 12px;
+
+      /* 비주얼 이미지 영역 컨테이너 */
+      .hero-visual {
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+        container-type: inline-size;
       }
+
+      /* 차량 이미지 기본 스타일 (비율 유지) */
+      .hero-img-wide {
+        width: 100%;
+        height: auto;
+        display: block;
+        aspect-ratio: 640 / 340;
+        background: transparent;
+      }
+
+      /* [핵심 수정] 차 지붕 위 문구 컴포넌트 추가 */
+      .car-roof-text {
+        position: absolute;
+        left: 50%;
+        /* top 위치를 조절하고 아래 여백(margin-bottom)을 주어 지붕 위에 띄웠습니다 */
+        top: 24%;
+        transform: translate(-50%, -100%);
+        width: auto;
+        text-align: center;
+        margin-bottom: 8px; /* 지붕선과의 시각적 안정감을 위한 여백 제공 */
+      }
+
+      /* [핵심 수정] 지붕 위 문구 세부 디자인 */
+      .car-roof-text h2 {
+        /* 차량 이미지 너비(cqw)에 비례한 컴팩트해진 크기 */
+        font-size: 3.2cqw;
+        font-weight: 800; /* [요청 사항 반영] 굵기 강화 */
+        line-height: 1.35;
+        color: #e2e8f0; /* 이미지와 유사한 밝은 회색톤 */
+        margin: 0;
+        letter-spacing: -0.2px;
+      }
+
+      /* 하단 영문 캡션 (크기 및 굵기 최적화) */
+      .hero-eyebrow {
+        font-size: 13px; /* 14px -> 13px 미세 조정 */
+        font-weight: 700; /* 800 -> 700 미세 조정 */
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: rgba(255, 255, 255, 0.75);
+        margin: 12px 0 0;
+      }
+
+      /* "차밥"만 차체 중앙 안쪽에 크게 (굵기 강화) */
+      .car-text {
+        position: absolute;
+        left: 50%;
+        top: 62%;
+        transform: translate(-50%, -50%);
+        width: 60%;
+      }
+      .car-text h1 {
+        font-size: 12cqw;
+        /* [요청 사항 반영] 지붕 위 글자와 완벽하게 폰트 굵기 일치 */
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1;
+        margin: 0;
+        color: #ffffff; /* 흰색으로 명확하게 */
+      }
+      /* ------------------------------------------- */
+
+      /* --- [유지 구간: 아래 내용은 건드리지 않습니다] --- */
       .search-panel {
-        max-width: 1180px;
+        width: fit-content;
+        max-width: 100%;
+        margin: 0 auto;
       }
       .search-row {
         flex-wrap: nowrap;
       }
       .search-row .btn-pill-primary {
-        margin-left: auto;
         flex-shrink: 0;
         white-space: nowrap;
-      }
-      .chip-toggle:has(input[name="hour24"]) {
-        margin-left: 12px;
       }
     </style>
   </head>
   <body>
+    <!-- [수정 구간: 상단 헤더 HTML 구조] -->
     <div class="hero-band">
-      <div class="eyebrow">Real-Time Fuel & EV Charger Search</div>
-      <h1>차밥</h1>
-      <p class="tagline">나만 밥 먹나? 차도 밥 먹어야지!</p>
-      <p>
-        오피넷 오픈API와 전기차 충전소 공공API를 통해 지역별 유가와 전기차
-        충전소 정보를 한 번에 확인하세요.
-      </p>
-    </div>
+      <div class="hero-visual">
+        <!-- [위치 이동 및 적용] 차 지붕 위 배치 텍스트 영역 -->
+        <div class="car-roof-text">
+          <h2>차는 밥 안줄꺼야?<br />기름밥도 전기밥도</h2>
+        </div>
 
+        <img
+          class="hero-img-wide"
+          src="{{ url_for('static', filename='img/car-both.svg') }}"
+          alt="주유와 충전을 동시에 하는 차"
+        />
+
+        <!-- 차량 중심 '차밥' 텍스트 영역 -->
+        <div class="car-text">
+          <h1>차밥</h1>
+        </div>
+      </div>
+      <!-- 하단 영문 캡션 위치 유지 -->
+      <div class="hero-eyebrow">Real-Time Fuel & EV Charger Search</div>
+    </div>
+    <!-- --------------------------------- -->
+
+    <!-- 아래 내용은 제공된 코드 그대로 유지합니다 -->
     <div class="content-band">
       <form id="main-form" method="get">
         <div class="search-panel">
@@ -88,6 +174,35 @@
               24시간만</label
             >
 
+            <label class="chip-toggle ev-only"
+              ><input
+                type="radio"
+                name="power_category"
+                value="일반"
+                checked
+                style="display: none"
+              />
+              일반</label
+            >
+            <label class="chip-toggle ev-only"
+              ><input
+                type="radio"
+                name="power_category"
+                value="급속"
+                style="display: none"
+              />
+              급속</label
+            >
+            <label class="chip-toggle ev-only"
+              ><input
+                type="radio"
+                name="power_category"
+                value="초급속"
+                style="display: none"
+              />
+              초급속</label
+            >
+
             <button type="submit" class="btn-pill-primary">검색</button>
           </div>
 
@@ -110,9 +225,9 @@
       const modeSelect = document.getElementById("mode-select");
       const modeDisplay = document.getElementById("mode-display");
       const oilOnlyEls = document.querySelectorAll(".oil-only");
+      const evOnlyEls = document.querySelectorAll(".ev-only");
       const mainForm = document.getElementById("main-form");
 
-      // 화면 표기용 유종 -> 오피넷 API 파라미터 매핑
       const FUEL_PARAM = {
         경유: "경유가격",
         휘발유: "휘발유가격",
@@ -124,13 +239,25 @@
         modeDisplay.textContent = mode;
         const isEv = mode === "전기차";
         oilOnlyEls.forEach((el) => (el.style.display = isEv ? "none" : ""));
+        evOnlyEls.forEach((el) => (el.style.display = isEv ? "" : "none"));
+        requestAnimationFrame(syncHeroWidth);
       }
+
+      const searchPanel = document.querySelector(".search-panel");
+      const heroInner = document.querySelector(".hero-visual");
+
+      function syncHeroWidth() {
+        if (searchPanel && heroInner) {
+          heroInner.style.width = searchPanel.offsetWidth + "px";
+        }
+      }
+
+      window.addEventListener("load", syncHeroWidth);
+      window.addEventListener("resize", syncHeroWidth);
 
       modeSelect.addEventListener("change", syncMode);
       syncMode();
 
-      // 제출 시 선택값에 따라 목적지(/search 또는 /charger/search)와
-      // fuel_type 파라미터를 세팅
       function setHiddenInput(form, name, value) {
         let input = form.querySelector(`input[name="${name}"]`);
         if (!input) {
@@ -144,7 +271,6 @@
 
       mainForm.addEventListener("submit", function (e) {
         const mode = modeSelect.value;
-        // 위치 정보를 받아온 뒤에 제출해야 하므로 일단 막고 직접 제출한다.
         e.preventDefault();
 
         if (mode === "전기차") {
@@ -171,7 +297,6 @@
               submitNow();
             },
             () => {
-              // 위치 거부/실패해도 지역(시/도·시/군/구) 기준 검색은 그대로 진행
               submitNow();
             },
             { timeout: 3000 },
@@ -181,7 +306,6 @@
         }
       });
 
-      // 시/도 선택 시 시/군/구 목록 불러오기
       document.getElementById("sido").addEventListener("change", function () {
         const sido = this.value;
         const sigunguSelect = document.getElementById("sigungu");
