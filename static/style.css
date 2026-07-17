@@ -1,0 +1,448 @@
+:root {
+  --primary: #e60000;
+  --on-primary: #ffffff;
+  --ink: #25282b;
+  --body: #7e7e7e;
+  --mute: #bebebe;
+  --canvas: #ffffff;
+  --canvas-soft: #f2f2f2;
+  --on-dark: #ffffff;
+  --success: #1a9d4b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: "Inter", Arial, "Malgun Gothic", sans-serif;
+}
+
+/* ---------- nav ---------- */
+.nav-bar {
+  background: var(--ink);
+  color: var(--on-dark);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+}
+.nav-bar .wordmark {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+/* ---------- speechmark-style anchor ---------- */
+.anchor-mark {
+  width: 40px;
+  height: 40px;
+  background: var(--primary);
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-right: 12px;
+}
+
+/* ---------- hero band (dark) ---------- */
+.hero-band {
+  background: var(--ink);
+  color: var(--on-dark);
+  padding: 56px 32px 48px;
+}
+.hero-band .eyebrow {
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 16px;
+}
+.hero-band h1 {
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.05;
+  margin: 0 0 16px;
+}
+.hero-band p {
+  font-size: 19px;
+  font-weight: 300;
+  max-width: 640px;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ---------- content band (white) ---------- */
+.content-band {
+  background: var(--canvas);
+  padding: 40px 32px 48px;
+}
+.search-panel {
+  max-width: 960px;
+  margin: 0 auto;
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  padding: 24px 28px;
+}
+.search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+select {
+  background: var(--canvas);
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  color: var(--ink);
+  height: 48px;
+  padding: 0 16px;
+  font-size: 16px;
+  font-family: inherit;
+  min-width: 160px;
+}
+
+.chip-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 32px;
+  background: var(--canvas-soft);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.chip-toggle:has(input:checked) {
+  background: var(--canvas);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+/* 유종별 정렬 칩 색상 */
+.chip-fuel.diesel {
+  border: 1px solid #1c69d4;
+  color: #1c69d4;
+  background: var(--canvas);
+}
+.chip-fuel.diesel:has(input:checked) {
+  background: #1c69d4;
+  color: #ffffff;
+}
+
+.chip-fuel.gasoline {
+  border: 1px solid #f4b400;
+  color: #8a6200;
+  background: var(--canvas);
+}
+.chip-fuel.gasoline:has(input:checked) {
+  background: #f4b400;
+  color: #25282b;
+}
+
+.chip-fuel.premium {
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  background: var(--canvas);
+}
+.chip-fuel.premium:has(input:checked) {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.btn-pill-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  border: 1px solid var(--primary);
+  border-radius: 60px;
+  height: 48px;
+  padding: 0 28px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-pill-outline {
+  display: inline-flex;
+  align-items: center;
+  background: var(--canvas);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 60px;
+  height: 48px;
+  padding: 0 24px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.btn-pill-outline-dark {
+  display: inline-flex;
+  align-items: center;
+  background: var(--canvas);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 60px;
+  height: 44px;
+  padding: 0 22px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.fuel-row {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.fuel-row .label-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--body);
+  margin-right: 6px;
+}
+
+/* ---------- results hero (dark) ---------- */
+.results-hero {
+  background: var(--ink);
+  color: var(--on-dark);
+  padding: 48px 32px 36px;
+}
+.results-hero h2 {
+  font-size: 38px;
+  font-weight: 300;
+  margin: 0 0 6px;
+}
+.results-hero .meta {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.65);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.results-actions {
+  margin-top: 22px;
+}
+
+/* ---------- result cards ---------- */
+.results-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 32px 24px;
+}
+
+.card-lead {
+  background: var(--canvas);
+  border: 1px solid var(--canvas-soft);
+  border-radius: 6px;
+  padding: 24px 28px;
+  margin-bottom: 16px;
+}
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.card-lead .card-name {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.badge-chip {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--canvas-soft);
+  border-radius: 32px;
+  padding: 6px 14px;
+  white-space: nowrap;
+}
+.badge-logo {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  background: var(--canvas-soft);
+  border-radius: 32px;
+}
+.badge-logo img {
+  height: 18px;
+  display: block;
+}
+.card-compact .badge-logo {
+  padding: 3px 10px;
+}
+.card-compact .badge-logo img {
+  height: 13px;
+}
+
+.card-addr {
+  margin-top: 10px;
+  font-size: 15px;
+  color: var(--body);
+}
+.card-addr a {
+  color: var(--body);
+  text-decoration: underline;
+}
+.card-phone {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--mute);
+}
+
+.spec-row {
+  display: flex;
+  gap: 1px;
+  background: var(--mute);
+  border: 1px solid var(--mute);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 18px;
+}
+.spec-cell {
+  flex: 1;
+  background: var(--canvas);
+  padding: 12px 14px;
+}
+.spec-cell .val {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.spec-cell .lbl {
+  font-size: 11px;
+  letter-spacing: 0.57px;
+  text-transform: uppercase;
+  color: var(--body);
+  margin-top: 3px;
+  font-weight: 700;
+}
+
+/* 유종별 가격 셀 색상 */
+.spec-cell.diesel {
+  background: #1c69d4;
+}
+.spec-cell.diesel .val,
+.spec-cell.diesel .lbl {
+  color: #ffffff;
+}
+
+.spec-cell.gasoline {
+  background: #f4b400;
+}
+.spec-cell.gasoline .val {
+  color: #25282b;
+}
+.spec-cell.gasoline .lbl {
+  color: #4a3800;
+}
+
+.spec-cell.premium {
+  background: var(--primary);
+}
+.spec-cell.premium .val,
+.spec-cell.premium .lbl {
+  color: #ffffff;
+}
+
+.amenity-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.amenity-chip {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 32px;
+  background: var(--canvas);
+}
+.amenity-chip.good {
+  border: 1px solid var(--success);
+  color: var(--success);
+}
+.amenity-chip.bad {
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+/* ---------- compact grid (6th result onward, ~50% width) ---------- */
+.card-grid-compact {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 8px;
+}
+.card-compact {
+  background: var(--canvas);
+  border: 1px solid var(--canvas-soft);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+.card-compact .card-name {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+}
+.card-compact .badge-chip {
+  font-size: 10px;
+  padding: 3px 10px;
+}
+.card-compact .card-addr {
+  font-size: 12px;
+  margin-top: 6px;
+}
+.card-compact .card-phone {
+  font-size: 11px;
+}
+.card-compact .spec-row {
+  margin-top: 10px;
+}
+.card-compact .spec-cell {
+  padding: 7px 8px;
+}
+.card-compact .spec-cell .val {
+  font-size: 13px;
+}
+.card-compact .spec-cell .lbl {
+  font-size: 9px;
+}
+.card-compact .amenity-row {
+  margin-top: 8px;
+  gap: 5px;
+}
+.card-compact .amenity-chip {
+  font-size: 10px;
+  padding: 3px 9px;
+}
+
+.back-row {
+  max-width: 960px;
+  margin: 8px auto 40px;
+  padding: 0 32px;
+}
+
+/* ---------- footer ---------- */
+.footer {
+  background: var(--ink);
+  color: rgba(255, 255, 255, 0.6);
+  padding: 32px;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}

@@ -1,80 +1,115 @@
 from flask import Flask, render_template, request, jsonify, send_file
-import scrapper
 import csv
 import io
-
+ 
+import oil_api
+import charger_api
+ 
 app = Flask(__name__)
-
+ 
+ 
 @app.route('/')
 def index():
-    sido_list = scrapper.get_sido_list()
+    sido_list = oil_api.get_sido_list()
     return render_template('index.html', sido_list=sido_list)
-
+ 
+ 
+# 시/도 선택 시 시/군/구 목록 (탭 종류에 따라 소스만 다르고 지역명 체계는 동일)
 @app.route('/api/sigungu')
 def api_sigungu():
     sido = request.args.get('sido', '')
     try:
-        sigungu_list = scrapper.get_sigungu_list(sido)
+        sigungu_list = oil_api.get_sigungu_list(sido)
         return jsonify({'sigungu_list': sigungu_list})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
+ 
+ 
 @app.route('/search')
 def search():
     sido = request.args.get('sido', '')
     sigungu = request.args.get('sigungu', '')
     carwash_checked = request.args.get('carwash') == 'on'
-    hour24_checked = request.args.get('hour24') == 'on'
     cvs_checked = request.args.get('cvs') == 'on'
     fuel_type = request.args.get('fuel_type', '경유가격')
-
-    any_checked = carwash_checked or hour24_checked or cvs_checked
-
+ 
+    any_checked = carwash_checked or cvs_checked
+ 
     if not sido or not sigungu:
         return render_template('results.html', stations=[], count=0, sido=sido, sigungu=sigungu,
-                                carwash_checked=carwash_checked, hour24_checked=hour24_checked,
+                                carwash_checked=carwash_checked,
                                 cvs_checked=cvs_checked, any_checked=any_checked, fuel_type=fuel_type)
-
+ 
     try:
-        stations = scrapper.get_stations(sido, sigungu)
+        stations = oil_api.get_stations(sido, sigungu, fuel_type)
     except Exception as e:
         return render_template('results.html', stations=[], count=0, error=str(e), sido=sido, sigungu=sigungu,
-                                carwash_checked=carwash_checked, hour24_checked=hour24_checked,
+                                carwash_checked=carwash_checked,
                                 cvs_checked=cvs_checked, any_checked=any_checked, fuel_type=fuel_type)
-
+ 
     if carwash_checked:
         stations = [s for s in stations if s['세차장'] == '가능']
-    if hour24_checked:
-        stations = [s for s in stations if s['24시간영업'] == '가능']
     if cvs_checked:
         stations = [s for s in stations if s['편의점'] == '있음']
-
-    def sort_key(s):
-        val = s.get(fuel_type, '')
-        if val == '판매안함' or not val:
-            return float('inf')
-        return int(val)
-
-    stations.sort(key=sort_key)
-
+ 
     return render_template('results.html', stations=stations, count=len(stations), sido=sido, sigungu=sigungu,
-                            carwash_checked=carwash_checked, hour24_checked=hour24_checked,
+                            carwash_checked=carwash_checked,
                             cvs_checked=cvs_checked, any_checked=any_checked, fuel_type=fuel_type)
-
+ 
+ 
+@app.route('/charger/search')
+def charger_search():
+    sido = request.args.get('sido', '')
+    sigungu = request.args.get('sigungu', '')
+ 
+    if not sido or not sigungu:
+        return render_template('charger_results.html', stations=[], count=0, sido=sido, sigungu=sigungu)
+ 
+    try:
+        stations = charger_api.get_stations(sido, sigungu)
+    except Exception as e:
+        return render_template('charger_results.html', stations=[], count=0, error=str(e), sido=sido, sigungu=sigungu)
+ 
+    return render_template('charger_results.html', stations=stations, count=len(stations), sido=sido, sigungu=sigungu)
+ 
+ 
 @app.route('/download')
 def download():
     sido = request.args.get('sido', '')
     sigungu = request.args.get('sigungu', '')
-    stations = scrapper.get_stations(sido, sigungu)
-
+    fuel_type = request.args.get('fuel_type', '경유가격')
+    stations = oil_api.get_stations(sido, sigungu, fuel_type)
+ 
+    clean_stations = [
+        {k: v for k, v in s.items() if k != '브랜드로고'}
+        for s in stations
+    ]
+ 
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=clean_stations[0].keys())
+    writer.writeheader()
+    writer.writerows(clean_stations)
+ 
+    mem = io.BytesIO(output.getvalue().encode('utf-8-sig'))
+    return send_file(mem, as_attachment=True,
+                      download_name=f'{sido}_{sigungu}_주유소.csv', mimetype='text/csv')
+ 
+ 
+@app.route('/charger/download')
+def charger_download():
+    sido = request.args.get('sido', '')
+    sigungu = request.args.get('sigungu', '')
+    stations = charger_api.get_stations(sido, sigungu)
+ 
     output = io.StringIO()
     writer = csv.DictWriter(output, fieldnames=stations[0].keys())
     writer.writeheader()
     writer.writerows(stations)
-
+ 
     mem = io.BytesIO(output.getvalue().encode('utf-8-sig'))
     return send_file(mem, as_attachment=True,
-                      download_name=f'{sido}_{sigungu}_주유소.csv', mimetype='text/csv')
-
+                      download_name=f'{sido}_{sigungu}_전기차충전소.csv', mimetype='text/csv')
+ 
+ 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -2,103 +2,43 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>실시간 주유소 가격 검색</title>
-    <style>
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        font-family: "Malgun Gothic", sans-serif;
-        margin: 0;
-        background: #f3f6fb;
-      }
-      .header {
-        background: #e8703a;
-        color: white;
-        padding: 40px 40px 90px;
-      }
-      .header-inner {
-        max-width: 900px;
-        margin: 0 auto;
-        text-align: center;
-      }
-      .header h1 {
-        margin: 0;
-        font-size: 32px;
-      }
-      .header p {
-        margin: 8px 0 0;
-        opacity: 0.9;
-      }
-      .search-card {
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-        padding: 24px 28px;
-        margin: -50px auto 0;
-        max-width: 900px;
-        position: relative;
-      }
-      .search-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        align-items: center;
-      }
-      select {
-        padding: 10px 14px;
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        font-size: 15px;
-        min-width: 140px;
-      }
-      .pill-label {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background: #f0f3fa;
-        padding: 8px 14px;
-        border-radius: 20px;
-        font-size: 14px;
-        cursor: pointer;
-      }
-      .search-btn {
-        background: #e8703a;
-        color: white;
-        border: none;
-        padding: 10px 24px;
-        border-radius: 10px;
-        font-size: 15px;
-        font-weight: bold;
-        cursor: pointer;
-      }
-      .fuel-row {
-        margin-top: 12px;
-        font-size: 14px;
-        color: #555;
-      }
-      .container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 40px;
-      }
-    </style>
+    <title>어디있지?</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
   </head>
   <body>
-    <div class="header">
-      <div class="header-inner">
-        <h1>⛽ 실시간 주유소 가격 검색 🚗</h1>
-        <p>
-          실시간 주유소 가격부터 24시간 운영, 세차장, 편의점 정보까지 한눈에
-          찾아보세요. (Data by 오피넷)
-        </p>
-      </div>
+    <div class="nav-bar">
+      <span class="anchor-mark"></span>
+      <span class="wordmark">어디있지?</span>
     </div>
 
-    <div class="container" style="padding-top: 0">
-      <div class="search-card">
-        <form action="/search" method="get">
+    <div class="hero-band">
+      <div class="eyebrow">Real-Time Fuel & EV Charger Search</div>
+      <h1>어디있지?</h1>
+      <p>
+        오피넷 오픈API와 전기차 충전소 공공API를 통해 지역별 유가와 전기차
+        충전소 정보를 한 번에 확인하세요.
+      </p>
+    </div>
+
+    <div class="content-band">
+      <form id="main-form" method="get">
+        <div class="search-panel">
           <div class="search-row">
+            <select name="mode" id="mode-select">
+              <option value="경유">경유</option>
+              <option value="휘발유">휘발유</option>
+              <option value="고급휘발유">고급휘발유</option>
+              <option value="전기차">전기차</option>
+            </select>
+
             <select name="sido" id="sido">
               <option value="">시/도 선택</option>
               {% for sido in sido_list %}
@@ -110,39 +50,73 @@
               <option value="">시/군/구 선택</option>
             </select>
 
-            <label class="pill-label"
-              ><input type="checkbox" name="carwash" /> 세차장만</label
+            <label class="chip-toggle oil-only"
+              ><input type="checkbox" name="carwash" style="display: none" />
+              세차장만</label
             >
-            <label class="pill-label"
-              ><input type="checkbox" name="hour24" /> 24시간만</label
-            >
-            <label class="pill-label"
-              ><input type="checkbox" name="cvs" /> 편의점만</label
+            <label class="chip-toggle oil-only"
+              ><input type="checkbox" name="cvs" style="display: none" />
+              편의점만</label
             >
 
-            <button type="submit" class="search-btn">검색</button>
+            <button type="submit" class="btn-pill-primary">검색</button>
           </div>
 
           <div class="fuel-row">
-            <strong>정렬 기준 유종:</strong>
-            <label
-              ><input type="radio" name="fuel_type" value="경유가격" checked />
-              경유</label
-            >
-            <label
-              ><input type="radio" name="fuel_type" value="휘발유가격" />
-              휘발유</label
-            >
-            <label
-              ><input type="radio" name="fuel_type" value="고급휘발유가격" />
-              고급휘발유</label
-            >
+            <span class="label-eyebrow">선택됨</span>
+            <span class="badge-chip" id="mode-display">경유</span>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="footer">
+      Data by 오피넷 · 한국석유공사 / 한국환경공단 전기차 충전소 정보
     </div>
 
     <script>
+      const modeSelect = document.getElementById("mode-select");
+      const modeDisplay = document.getElementById("mode-display");
+      const oilOnlyEls = document.querySelectorAll(".oil-only");
+      const mainForm = document.getElementById("main-form");
+
+      // 화면 표기용 유종 -> 오피넷 API 파라미터 매핑
+      const FUEL_PARAM = {
+        경유: "경유가격",
+        휘발유: "휘발유가격",
+        고급휘발유: "고급휘발유가격",
+      };
+
+      function syncMode() {
+        const mode = modeSelect.value;
+        modeDisplay.textContent = mode;
+        const isEv = mode === "전기차";
+        oilOnlyEls.forEach((el) => (el.style.display = isEv ? "none" : ""));
+      }
+
+      modeSelect.addEventListener("change", syncMode);
+      syncMode();
+
+      // 제출 시 선택값에 따라 목적지(/search 또는 /charger/search)와
+      // fuel_type 파라미터를 세팅
+      mainForm.addEventListener("submit", function () {
+        const mode = modeSelect.value;
+        if (mode === "전기차") {
+          mainForm.action = "/charger/search";
+        } else {
+          mainForm.action = "/search";
+          let fuelInput = mainForm.querySelector('input[name="fuel_type"]');
+          if (!fuelInput) {
+            fuelInput = document.createElement("input");
+            fuelInput.type = "hidden";
+            fuelInput.name = "fuel_type";
+            mainForm.appendChild(fuelInput);
+          }
+          fuelInput.value = FUEL_PARAM[mode];
+        }
+      });
+
+      // 시/도 선택 시 시/군/구 목록 불러오기
       document.getElementById("sido").addEventListener("change", function () {
         const sido = this.value;
         const sigunguSelect = document.getElementById("sigungu");
@@ -152,7 +126,7 @@
           .then((res) => res.json())
           .then((data) => {
             sigunguSelect.innerHTML = '<option value="">시/군/구 선택</option>';
-            data.sigungu_list.forEach((sg) => {
+            (data.sigungu_list || []).forEach((sg) => {
               const opt = document.createElement("option");
               opt.value = sg;
               opt.textContent = sg;

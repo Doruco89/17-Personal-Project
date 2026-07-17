@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>어디있지? · 충전소 검색 결과</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="nav-bar">
+      <span class="anchor-mark"></span>
+      <span class="wordmark">어디있지?</span>
+    </div>
+
+    <div class="results-hero">
+      <h2>{{ count }}개 검색됨</h2>
+      <div class="meta">{{ sido }} · {{ sigungu }} · 전기차 충전소</div>
+      <div class="results-actions">
+        <a
+          class="btn-pill-outline"
+          href="/charger/download?sido={{ sido }}&sigungu={{ sigungu }}"
+          >CSV 다운로드</a
+        >
+      </div>
+    </div>
+
+    {% if error %}
+    <p
+      style="
+        color: var(--primary);
+        max-width: 960px;
+        margin: 24px auto;
+        padding: 0 32px;
+      "
+    >
+      오류 발생: {{ error }}
+    </p>
+    {% endif %} {% macro stat_chip(s) %}
+    <span
+      class="amenity-chip {{ 'good' if s['충전기상태'] == '충전대기' else 'bad' }}"
+      >{{ s['충전기상태'] }}</span
+    >
+    {% endmacro %}
+
+    <div class="results-wrap">
+      {% for s in stations[:5] %}
+      <div class="card-lead">
+        <div class="card-top">
+          <p class="card-name">{{ s['충전소명'] }}</p>
+          <span class="badge-chip">{{ s['운영기관'] }}</span>
+        </div>
+        <div class="card-addr">
+          <a
+            href="https://www.google.com/maps/search/?api=1&query={{ s['주소']|urlencode }}"
+            target="_blank"
+            >{{ s['주소'] }}</a
+          >
+        </div>
+        <div class="card-phone">{{ s['연락처'] }}</div>
+
+        <div class="amenity-row" style="margin-top: 14px">
+          {{ stat_chip(s) }}
+          <span class="amenity-chip">{{ s['충전기타입'] }}</span>
+          <span class="amenity-chip">{{ s['이용가능시간'] }}</span>
+        </div>
+      </div>
+      {% endfor %} {% if stations|length > 5 %}
+      <div class="card-grid-compact">
+        {% for s in stations[5:] %}
+        <div class="card-compact">
+          <div class="card-top">
+            <p class="card-name">{{ s['충전소명'] }}</p>
+            <span class="badge-chip">{{ s['운영기관'] }}</span>
+          </div>
+          <div class="card-addr">
+            <a
+              href="https://www.google.com/maps/search/?api=1&query={{ s['주소']|urlencode }}"
+              target="_blank"
+              >{{ s['주소'] }}</a
+            >
+          </div>
+          <div class="card-phone">{{ s['연락처'] }}</div>
+
+          <div class="amenity-row">
+            {{ stat_chip(s) }}
+            <span class="amenity-chip">{{ s['충전기타입'] }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="back-row">
+      <a class="btn-pill-outline-dark" href="/">다시 검색</a>
+    </div>
+
+    <div class="footer">Data by 한국환경공단 전기차 충전소 정보</div>
+  </body>
+</html>
