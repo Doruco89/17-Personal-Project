@@ -16,12 +16,18 @@
   --success: #22c55e;
 
   --diesel-accent: #1c69d4;
-  --gasoline-accent: #dddd19;
+  --gasoline-accent: #f3f308;
   --premium-accent: #ac1616;
 }
 
 * {
   box-sizing: border-box;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden; /* 어떤 요소가 화면보다 넓어져도 전체 페이지가 축소 렌더링되지 않도록 하는 안전장치 */
 }
 
 body {
@@ -150,7 +156,7 @@ body {
 }
 .search-row {
   display: flex;
-  flex-wrap: nowrap; /* 검색창이 줄바꿈되지 않고 항상 한 줄(24시간만 옆에 검색 버튼)로 유지되도록 수정 */
+  flex-wrap: nowrap; /* 검색창이 줄바꿈되지 않고 항상 한 줄(24시간만 옆에 검색 버튼)로 유지되도록 수정 (PC 기준) */
   gap: 12px;
   align-items: center;
 }
@@ -548,5 +554,40 @@ select:focus {
   .content-band {
     padding-left: 16px;
     padding-right: 16px;
+  }
+
+  .hero-band {
+    padding: 20px 16px 24px;
+  }
+
+  /* 검색 패널 좌우 여백 축소 */
+  .search-panel {
+    padding: 20px 16px;
+  }
+
+  /* 핵심 수정: 검색창을 모바일에서는 줄바꿈 허용 -> 문서 전체 폭이
+     화면보다 넓어져서 인앱 브라우저가 전체 페이지를 축소 렌더링하는
+     문제를 해결한다. */
+  .search-row {
+    flex-wrap: wrap;
+  }
+
+  select {
+    min-width: 0; /* PC용 고정폭 160px 제거 */
+    flex: 1 1 calc(50% - 6px); /* 한 줄에 2개씩 배치 */
+  }
+
+  .chip-toggle {
+    flex: 1 1 auto;
+  }
+
+  .btn-pill-primary {
+    flex: 1 1 100%; /* 검색 버튼은 모바일에서 한 줄 전체 차지 */
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .fuel-row {
+    gap: 8px;
   }
 }
