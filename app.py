@@ -7,18 +7,14 @@ import charger_api
 
 app = Flask(__name__)
 
-
 def _stylesheet():
     return 'style-bmw.css' if request.args.get('theme') == 'bmw' else 'style.css'
-
 
 @app.route('/')
 def index():
     sido_list = oil_api.get_sido_list()
     return render_template('index.html', sido_list=sido_list, stylesheet=_stylesheet())
 
-
-# 시/도 선택 시 시/군/구 목록 (탭 종류에 따라 소스만 다르고 지역명 체계는 동일)
 @app.route('/api/sigungu')
 def api_sigungu():
     sido = request.args.get('sido', '')
@@ -27,7 +23,6 @@ def api_sigungu():
         return jsonify({'sigungu_list': sigungu_list})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 @app.route('/search')
 def search():
@@ -45,7 +40,11 @@ def search():
                                 fuel_type=fuel_type, stylesheet=_stylesheet())
 
     try:
-        stations = oil_api.get_stations(sido, sigungu, fuel_type, user_lat=lat, user_lng=lng)
+        # [캐시 가속 적용 1] 공공 API 통신 결과만 15분 단위로 메모리 캐시에서 가져옵니다.
+        raw_stations = oil_api.get_stations(sido, sigungu, fuel_type)
+        
+        # [캐시 가속 적용 2] 각 사용자의 실시간 GPS 기준으로 '거리 계산'만 즉석에서 수행합니다.
+        stations = oil_api.attach_distance(raw_stations, user_lat=lat, user_lng=lng)
     except Exception as e:
         return render_template('results.html', stations=[], count=0, error=str(e), sido=sido, sigungu=sigungu,
                                 fuel_type=fuel_type, stylesheet=_stylesheet())
@@ -70,7 +69,6 @@ def search():
     return render_template('results.html', stations=stations, count=len(stations), sido=sido, sigungu=sigungu,
                             fuel_type=fuel_type, stylesheet=_stylesheet())
 
-
 @app.route('/charger/search')
 def charger_search():
     sido = request.args.get('sido', '')
@@ -91,13 +89,16 @@ def charger_search():
 
     return render_template('charger_results.html', stations=stations, count=len(stations), sido=sido, sigungu=sigungu, stylesheet=_stylesheet())
 
-
 @app.route('/download')
 def download():
     sido = request.args.get('sido', '')
     sigungu = request.args.get('sigungu', '')
     fuel_type = request.args.get('fuel_type', '경유가격')
     stations = oil_api.get_stations(sido, sigungu, fuel_type)
+
+    if not stations:
+        mem = io.BytesIO("검색 결과가 존재하지 않습니다.".encode('utf-8-sig'))
+        return send_file(mem, as_attachment=True, download_name=f'{sido}_{sigungu}_공백_주유소.csv', mimetype='text/csv')
 
     clean_stations = [
         {k: v for k, v in s.items() if k != '브랜드로고' and not k.startswith('_')}
@@ -113,12 +114,15 @@ def download():
     return send_file(mem, as_attachment=True,
                       download_name=f'{sido}_{sigungu}_주유소.csv', mimetype='text/csv')
 
-
 @app.route('/charger/download')
 def charger_download():
     sido = request.args.get('sido', '')
     sigungu = request.args.get('sigungu', '')
     stations = charger_api.get_stations(sido, sigungu)
+
+    if not stations:
+        mem = io.BytesIO("검색 결과가 존재하지 않습니다.".encode('utf-8-sig'))
+        return send_file(mem, as_attachment=True, download_name=f'{sido}_{sigungu}_공백_전기차충전소.csv', mimetype='text/csv')
 
     clean_stations = [
         {k: (' / '.join(v) if k == '커넥터목록' else v)
@@ -134,7 +138,6 @@ def charger_download():
     mem = io.BytesIO(output.getvalue().encode('utf-8-sig'))
     return send_file(mem, as_attachment=True,
                       download_name=f'{sido}_{sigungu}_전기차충전소.csv', mimetype='text/csv')
-
 
 if __name__ == '__main__':
     app.run(debug=True)
